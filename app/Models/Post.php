@@ -4,14 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory; // ⬅ WAJIB
+use App\Models\User; // ⬅ best practice (eksplisit)
 
 class Post extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'title',
         'content',
         'is_draft',
         'published_at',
+        'user_id',
     ];
 
     public function user()

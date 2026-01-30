@@ -4,60 +4,46 @@ namespace App\Policies;
 
 use App\Models\Post;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class PostPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Anyone can view list (handled by scopeActive)
      */
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user = null): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Anyone can view a post (controller checks isActive)
      */
-    public function view(User $user, Post $post): bool
+    public function view(?User $user, Post $post): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Determine whether the user can create models.
+     * Any authenticated user can create post
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Only author can update
      */
-    public function update(User $user, Post $post)
-    {
-        return $user->id === $post->user_id;
-    }
-
-    public function delete(User $user, Post $post)
+    public function update(User $user, Post $post): bool
     {
         return $user->id === $post->user_id;
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Only author can delete
      */
-    public function restore(User $user, Post $post): bool
+    public function delete(User $user, Post $post): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Post $post): bool
-    {
-        return false;
+        return $user->id === $post->user_id;
     }
 }
