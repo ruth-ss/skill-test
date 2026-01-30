@@ -13,20 +13,23 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::active()
-            ->with('user')
-            ->paginate(20);
-
-        return response()->json($posts);
+        return response()->json(
+            Post::active()
+                ->with('user')
+                ->paginate(20)
+        );
     }
 
     /**
      * GET /posts/create
      * Only authenticated users
+     * (Views not required by test)
      */
     public function create()
     {
-        return 'posts.create';
+        return response()->json([
+            'message' => 'Create post endpoint'
+        ]);
     }
 
     /**
@@ -46,9 +49,8 @@ class PostController extends Controller
             'content'      => $validated['content'],
             'published_at' => $validated['published_at'] ?? null,
             'is_draft'     => empty($validated['published_at']),
-            'user_id'      => auth()->id(),
+            'user_id'      => $request->user()->id,
         ]);
-
 
         return response()->json($post, 201);
     }
@@ -59,15 +61,12 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        if (!$post->isActive()) {
-            abort(404);
-        }
+        abort_unless($post->isActive(), 404);
 
         return response()->json(
             $post->load('user')
         );
     }
-
 
     /**
      * GET /posts/{post}/edit
@@ -77,7 +76,9 @@ class PostController extends Controller
     {
         $this->authorize('update', $post);
 
-        return 'posts.edit';
+        return response()->json([
+            'message' => 'Edit post endpoint'
+        ]);
     }
 
     /**
@@ -94,9 +95,10 @@ class PostController extends Controller
             'published_at' => 'nullable|date',
         ]);
 
-        $validated['is_draft'] = empty($validated['published_at']);
-        $post->update($validated);
-
+        $post->update([
+            ...$validated,
+            'is_draft' => empty($validated['published_at']),
+        ]);
 
         return response()->json($post);
     }
